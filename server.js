@@ -657,6 +657,27 @@ app.post('/api/courses/bulk', authenticateToken, requireAdmin, async (req, res) 
   }
 });
 
+// Health check route
+app.get('/api/health', async (req, res) => {
+  try {
+    // Perform a simple query to verify database connection
+    await pool.query('SELECT 1');
+    res.json({
+      status: 'UP',
+      database: 'CONNECTED',
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('Health check failed:', err);
+    res.status(500).json({
+      status: 'DOWN',
+      database: 'DISCONNECTED',
+      error: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
